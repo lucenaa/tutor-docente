@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Aula 1 — Chat Tutor{% endblock %}
+{% block content %}
+  <div class="grid md:grid-cols-3 gap-6">
+    <div class="md:col-span-2 card p-0 overflow-hidden">
+      <div class="border-b border-border/70 px-4 py-3 flex items-center justify-between">
+        <div>
+          <div class="font-semibold">Aula 1 — Situação-problema</div>
+          <div class="text-xs text-subtext">Tutor para docentes (gemini-2.5-pro)</div>
+        </div>
+        <a href="/" class="button-outline">Voltar</a>
+      </div>
+
+      <div id="chat" class="h-[62vh] md:h-[68vh] overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-card to-card/60">
+        <!-- Mensagens renderizadas aqui -->
+      </div>
+
+      <form id="composer" class="border-t border-border/70 p-3 flex gap-2">
+        <input id="input" type="text" placeholder="Escreva sua mensagem..." class="flex-1 bg-transparent border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40" />
+        <button class="button-primary" type="submit">Enviar</button>
+      </form>
+    </div>
+
+    <aside class="card p-5 space-y-4">
+      <div class="text-sm text-subtext">Plano da Aula</div>
+      <ol class="list-decimal ml-5 space-y-1 text-sm">
+        <li>Boas-vindas e Introdução</li>
+        <li>Reflexão de Abertura</li>
+        <li>Competências 1.1 a 1.4</li>
+        <li>Articulação</li>
+        <li>Perguntas-chave (com rubrica)</li>
+        <li>Texto Complementar</li>
+        <li>Pausa Guiada</li>
+        <li>Conclusão</li>
+      </ol>
+      <div class="text-xs text-subtext">O tutor seguirá estritamente a ordem dos passos e fará perguntas objetivas, uma de cada vez, com feedback gentil.</div>
+      <button id="start" class="button-outline w-full">Iniciar conversa</button>
+    </aside>
+  </div>
+
+  <script>
+    const chatEl = document.getElementById('chat');
+    const inputEl = document.getElementById('input');
+    const formEl = document.getElementById('composer');
+    const startEl = document.getElementById('start');
+
+    /** Estado mínimo de conversa */
+    const history = [];
+
+    function bubble(role, text) {
+      const wrap = document.createElement('div');
+      wrap.className = role === 'user' ? 'flex justify-end' : 'flex justify-start';
+      const b = document.createElement('div');
+      b.className = role === 'user'
+        ? 'max-w-[80%] rounded-lg bg-accent text-white px-3 py-2'
+        : 'max-w-[80%] rounded-lg border border-border bg-card px-3 py-2';
+      b.innerText = text;
+      wrap.appendChild(b);
+      chatEl.appendChild(wrap);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    async function sendToApi(message) {
+      history.push({ role: 'user', content: message });
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history })
+      });
+      if (!resp.ok) {
+        const detail = await resp.text();
+        throw new Error(detail || 'Erro ao contactar o tutor');
+      }
+      const data = await resp.json();
+      history.push({ role: 'assistant', content: data.reply });
+      return data.reply;
+    }
+
+    formEl.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = (inputEl.value || '').trim();
+      if (!text) return;
+      bubble('user', text);
+      inputEl.value = '';
+      try {
+        const reply = await sendToApi(text);
+        bubble('assistant', reply);
+      } catch (err) {
+        bubble('assistant', 'Desculpe, ocorreu um erro. Tente novamente em instantes.');
+      }
+    });
+
+    startEl.addEventListener('click', async () => {
+      bubble('user', 'Iniciar');
+      try {
+        const reply = await sendToApi('Iniciar');
+        bubble('assistant', reply);
+      } catch (err) {
+        bubble('assistant', 'Não foi possível iniciar agora.');
+      }
+    });
+  </script>
+{% endblock %}
+
+

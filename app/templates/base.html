@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Trilhas Docentes{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              background: '#0B1020',
+              card: '#11162A',
+              border: '#222B4A',
+              accent: '#7C3AED',
+              accent2: '#22D3EE',
+              text: '#E5E7EB',
+              subtext: '#9CA3AF'
+            },
+            boxShadow: {
+              soft: '0 8px 30px rgba(0,0,0,0.25)'
+            },
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui']
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      .button-primary {
+        @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-purple-700 transition-colors border border-border shadow-soft;
+      }
+      .button-outline {
+        @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-text border border-border hover:bg-card/60 transition-colors;
+      }
+      .card {
+        @apply rounded-xl border border-border bg-card shadow-soft;
+      }
+      .container-page {
+        @apply mx-auto max-w-6xl px-4;
+      }
+      .badge {
+        @apply inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs text-subtext;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gradient-to-b from-background to-[#0F1530] text-text font-sans">
+    <header class="border-b border-border/60">
+      <div class="container-page py-4 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-accent to-accent2"></div>
+          <div class="">
+            <div class="text-base font-semibold tracking-tight">Trilhas Docentes</div>
+            <div class="text-xs text-subtext">Formação Continuada</div>
+          </div>
+        </a>
+        <div class="flex items-center gap-2">
+          <span class="badge">v1 • Aula 1</span>
+        </div>
+      </div>
+    </header>
+    <main class="container-page py-10">
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="border-t border-border/60">
+      <div class="container-page py-6 text-center text-xs text-subtext">
+        © {{ 2025 }} Trilhas Docentes — Verbum
+      </div>
+    </footer>
+  </body>
+  </html>
+
+
