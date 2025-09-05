@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from "reac
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { BookOpenCheck, GraduationCap, Sparkles, Lock } from "lucide-react";
+import { BookOpenCheck, GraduationCap, Sparkles } from "lucide-react";
 import "./index.css";
 
 function Avatar({ label, color }: { label: string; color?: string }) {
