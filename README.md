@@ -5,27 +5,24 @@ Aplicação web com backend em FastAPI e frontend em React (Vite + TypeScript + 
 ### Arquitetura
 - Backend: FastAPI (`app/main.py`) com endpoint `/api/chat` e prompts por `lesson_id` (1, 2, 3, 4)
 - Frontend: React + Vite em `web/` com Tailwind v4, UI com ícones e renderização de Markdown
-- CORS habilitado para `http://localhost:5173`
+- CORS configurável via variável `FRONTEND_ORIGIN`
 
 ### Requisitos
 - Python 3.10+
 - Node.js 18+
 - Uma chave de API do Google Generative AI (`GOOGLE_API_KEY`)
 
-### Configuração do Backend (Windows PowerShell)
+### Configuração do Backend
 1) Criar/usar venv e instalar dependências:
 ```powershell
 python -m venv venv
 venv\Scripts\Activate.ps1
 venv\Scripts\python -m pip install -r requirements.txt
 ```
-2) Definir a variável de ambiente (ou use um arquivo `.env`):
-```powershell
-setx GOOGLE_API_KEY "SUA_CHAVE_AQUI"
-```
-Feche e reabra o terminal após `setx`. Alternativa: crie `.env` na raiz com:
+2) Defina variáveis de ambiente (ou use um arquivo `.env` na raiz):
 ```
 GOOGLE_API_KEY=coloque_sua_chave_aqui
+FRONTEND_ORIGIN=http://localhost:5173
 ```
 3) Rodar o servidor FastAPI:
 ```powershell
@@ -42,7 +39,9 @@ npm install
 ```powershell
 npm run dev
 ```
-3) Acessar o frontend em `http://localhost:5173` (o backend fica em `http://localhost:8000`).
+3) Acesse o frontend em `http://localhost:5173` (o backend fica em `http://localhost:8000`).
+
+4) Para produção via Netlify, defina `VITE_API_URL` nas variáveis do site com a URL pública do backend (ex.: `https://seu-backend.up.railway.app`).
 
 ### Uso
 - Página inicial: catálogo com as Aulas 1–4. Clique em uma aula para abrir o chat.
@@ -77,7 +76,6 @@ git pull --rebase origin main
 ```
 app/
   main.py
-  templates/ (apenas para a versão server-side inicial — o front atual é React)
 web/
   src/
   vite.config.ts
@@ -86,8 +84,11 @@ requirements.txt
 README.md
 ```
 
+### Deploy
+- Backend (Railway): use `railway.json` ou `Procfile` (`uvicorn app.main:app --host 0.0.0.0 --port $PORT`) e defina `GOOGLE_API_KEY` e `FRONTEND_ORIGIN`.
+- Frontend (Netlify): Base `web`, Build `npm run build`, Publish `web/dist`, defina `VITE_API_URL` com a URL do backend.
+
 ### Notas
 - Tailwind v4 com `@tailwindcss/postcss`. Se vir erro de PostCSS, rode `npm install` dentro de `web/`.
 - O chat usa `google-generativeai` e requer `GOOGLE_API_KEY` válida.
-- Para produção, recomenda-se servir o build do React (`npm run build` e servir `web/dist`) por um servidor (Nginx) e apontar o backend FastAPI por WSGI/ASGI (uvicorn/gunicorn) atrás de um proxy.
 

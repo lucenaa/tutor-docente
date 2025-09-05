@@ -119,7 +119,25 @@ function UserBubble({ children }: { children: React.ReactNode }) {
 function Chat() {
 	const { id } = useParams();
 	const navigate = useNavigate();
-	const API_BASE = (import.meta as any).env?.VITE_API_URL || ""; // ex.: https://seu-backend.onrender.com
+	function normalizeApiBase(value?: string): string {
+		if (!value) return "";
+		let v = value.trim();
+		if (v.endsWith("/")) v = v.slice(0, -1);
+		try {
+			const u = new URL(v);
+			const pathname = u.pathname.endsWith("/") ? u.pathname.slice(0, -1) : u.pathname;
+			return `${u.protocol}//${u.host}${pathname}`;
+		} catch {
+			try {
+				const u2 = new URL(`https://${v}`);
+				const pathname = u2.pathname.endsWith("/") ? u2.pathname.slice(0, -1) : u2.pathname;
+				return `${u2.protocol}//${u2.host}${pathname}`;
+			} catch {
+				return "";
+			}
+		}
+	}
+	const API_BASE = normalizeApiBase((import.meta as any).env?.VITE_API_URL); // ex.: https://seu-backend.onrender.com
 	const [messages, setMessages] = React.useState<{ role: "user" | "assistant"; content: string }[]>([
 		{ role: "assistant", content: Number(id) === 2 ? "Bem-vindo ao Trilho 2 — vamos começar pelo enquadramento inicial?" : Number(id) === 3 ? "Bem-vindo ao Trilho 3 — pronto para transformar princípios em ações?" : Number(id) === 4 ? "Bem-vindo ao Trilho 4 — vamos começar pela sua necessidade formativa de hoje?" : "Olá! Vamos começar a Aula 1. Posso iniciar a introdução?" },
 	]);

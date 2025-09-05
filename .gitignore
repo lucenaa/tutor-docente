@@ -1,0 +1,25 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+web/node_modules/
+
+# Frontend build
+web/dist/
+
+# Env files
+.env
+.env.*
+web/.env
+web/.env.*
+
+# OS / Editors
+.DS_Store
+.idea/
+.vscode/
+
+# Misc
+*.log

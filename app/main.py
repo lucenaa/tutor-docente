@@ -3,8 +3,7 @@ from typing import List, Literal, Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from dotenv import load_dotenv
@@ -18,7 +17,6 @@ except Exception:  # pragma: no cover
 load_dotenv()
 
 app = FastAPI(title="Trilhas Docentes")
-templates = Jinja2Templates(directory="app/templates")
 
 # CORS (dev + produção via env FRONTEND_ORIGIN)
 allowed_origins = [
@@ -218,14 +216,9 @@ class ChatPayload(BaseModel):
     lesson_id: Optional[str] = None
 
 
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
-@app.get("/aulas/1/chat", response_class=HTMLResponse)
-async def chat_page(request: Request):
-    return templates.TemplateResponse("chat.html", {"request": request})
+@app.get("/")
+async def healthcheck():
+    return {"status": "ok"}
 
 
 @app.post("/api/chat")
