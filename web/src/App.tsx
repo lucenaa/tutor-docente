@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from "reac
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import { BookOpenCheck, GraduationCap, Sparkles } from "lucide-react";
 import "./index.css";
 
@@ -159,9 +160,13 @@ function Chat() {
 				body: JSON.stringify({ lesson_id: id, messages: [...messages, { role: "user", content: message }] }),
 			});
 			const data = await resp.json();
-			if (!resp.ok) throw new Error(data.detail || "Erro");
+			if (!resp.ok) {
+				console.error("/api/chat error:", { status: resp.status, detail: data?.detail, data });
+				throw new Error(data.detail || `Erro HTTP ${resp.status}`);
+			}
 			setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
 		} catch (e) {
+			console.error("Falha ao gerar resposta:", e);
 			setMessages((prev) => [...prev, { role: "assistant", content: "Desculpe, ocorreu um erro ao gerar a resposta." }]);
 		} finally {
 			setPending(false);
@@ -187,7 +192,24 @@ function Chat() {
 							<UserBubble key={idx}>{m.content}</UserBubble>
 						) : (
 							<AssistantBubble key={idx}>
-								<ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+								<ReactMarkdown
+									remarkPlugins={[remarkGfm, remarkBreaks]}
+									components={{
+										p: ({ node, ...props }) => <p className="mb-3 leading-relaxed" {...props} />,
+										ul: ({ node, ...props }) => <ul className="list-disc ml-5 mb-3" {...props} />,
+										ol: ({ node, ...props }) => <ol className="list-decimal ml-5 mb-3" {...props} />,
+										li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+										strong: ({ node, ...props }) => <strong className="font-semibold" {...props} />,
+										em: ({ node, ...props }) => <em className="italic" {...props} />,
+										blockquote: ({ node, ...props }) => (
+											<blockquote className="border-l-4 pl-3 italic text-muted-foreground mb-3" {...props} />
+										),
+										hr: ({ node, ...props }) => <hr className="my-4 border-border" {...props} />,
+										a: ({ node, ...props }) => <a className="text-primary underline" target="_blank" rel="noreferrer" {...props} />,
+									}}
+								>
+									{m.content}
+								</ReactMarkdown>
 							</AssistantBubble>
 						)
 					))}

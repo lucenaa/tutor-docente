@@ -758,8 +758,9 @@ RULES OF INTERACTION
 """
             )
         genai.configure(api_key=api_key)
+        model_name = os.environ.get("GEMINI_MODEL", "gemini-2.5-pro")
         model = genai.GenerativeModel(
-            model_name="gemini-2.5-pro",
+            model_name=model_name,
             system_instruction=system_prompt,
         )
 
