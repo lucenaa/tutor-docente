@@ -18,15 +18,15 @@ try:
 except Exception:  # pragma: no cover
     genai = None
 
-# Importar prompts e helpers
-from prompts import (
+# Importar prompts e helpers (imports absolutos para funcionar no Railway)
+from app.prompts import (
     GLOBAL_POLICY_PROMPT,
     TRILHO_01_PLAN_PROMPT,
     TRILHO01_STEPS_ORDER,
     get_next_step,
     get_step_context,
 )
-from prompts.trilho01_plan import is_valid_step
+from app.prompts.trilho01_plan import is_valid_step
 
 load_dotenv()
 
@@ -248,7 +248,7 @@ async def get_step_info(step_id: str):
     if not is_valid_step(step_id):
         raise HTTPException(status_code=404, detail=f"Step não encontrado: {step_id}")
 
-    from prompts.trilho01_steps import STEP_CONFIGS
+    from app.prompts.trilho01_steps import STEP_CONFIGS
 
     config = STEP_CONFIGS.get(step_id, {})
     next_step = get_next_step(step_id)
