@@ -2,7 +2,7 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import { Sparkles, Send, Loader2, ChevronRight } from "lucide-react";
+import { Sparkles, Send, Loader2 } from "lucide-react";
 import "./index.css";
 
 // ══════════════════════════════════════════════════════════════
@@ -16,6 +16,8 @@ interface Message {
 
 interface ChatState {
 	caminho_escolhido?: "A" | "B" | null;
+	completed_steps?: string[];
+	lesson_completed?: boolean;
 }
 
 interface ChatResponse {
@@ -50,6 +52,7 @@ const STEPS_ORDER = [
 ];
 
 // Steps que são apenas conteúdo (sem pergunta que exige resposta elaborada)
+// Nota: Mantido para referência, mas o botão "Continuar" foi removido
 const CONTENT_ONLY_STEPS = [
 	"t01_s2_video01",
 	"t01_s3_texto_abertura",
@@ -95,6 +98,134 @@ function Footer() {
 				© 2025 Verbum Educação — Formação Docente
 			</div>
 		</footer>
+	);
+}
+
+// Componente para renderizar markdown com suporte a iframes de vídeo
+function MarkdownWithVideos({ content }: { content: string }) {
+	// Processar iframes embeddados no conteúdo
+	const processContent = (text: string) => {
+		// Regex para encontrar iframes no formato HTML
+		const iframeRegex = /<iframe([^>]*)><\/iframe>/gi;
+		const parts: (string | JSX.Element)[] = [];
+		let lastIndex = 0;
+		let match;
+
+		while ((match = iframeRegex.exec(text)) !== null) {
+			// Adicionar texto antes do iframe
+			if (match.index > lastIndex) {
+				const beforeText = text.substring(lastIndex, match.index);
+				if (beforeText.trim()) {
+					parts.push(beforeText);
+				}
+			}
+
+			// Extrair atributos do iframe
+			const attrs = match[1];
+			const srcMatch = attrs.match(/src=["']([^"']+)["']/);
+			const widthMatch = attrs.match(/width=["']?(\d+)["']?/);
+			const heightMatch = attrs.match(/height=["']?(\d+)["']?/);
+
+			const src = srcMatch ? srcMatch[1] : "https://example.com/video-placeholder";
+			const width = widthMatch ? widthMatch[1] : "560";
+			const height = heightMatch ? heightMatch[1] : "315";
+
+			// Adicionar iframe como elemento React
+			parts.push(
+				<div key={`iframe-${match.index}`} className="my-4 flex justify-center">
+					<iframe
+						src={src}
+						width={width}
+						height={height}
+						frameBorder="0"
+						allowFullScreen
+						className="rounded-lg max-w-full"
+						title="Vídeo embeddado"
+					/>
+				</div>
+			);
+
+			lastIndex = match.index + match[0].length;
+		}
+
+		// Adicionar texto restante
+		if (lastIndex < text.length) {
+			const remainingText = text.substring(lastIndex);
+			if (remainingText.trim()) {
+				parts.push(remainingText);
+			}
+		}
+
+		// Se não encontrou iframes, retornar conteúdo original
+		if (parts.length === 0) {
+			return text;
+		}
+
+		return parts;
+	};
+
+	const processedContent = processContent(content);
+
+	return (
+		<div>
+			{Array.isArray(processedContent) ? (
+				processedContent.map((part, idx) => {
+					if (typeof part === "string") {
+						return (
+							<ReactMarkdown
+								key={`md-${idx}`}
+								remarkPlugins={[remarkGfm, remarkBreaks]}
+								components={{
+									p: ({ ...props }) => <p className="mb-3 leading-relaxed" {...props} />,
+									ul: ({ ...props }) => <ul className="list-disc ml-5 mb-3" {...props} />,
+									ol: ({ ...props }) => <ol className="list-decimal ml-5 mb-3" {...props} />,
+									li: ({ ...props }) => <li className="mb-1" {...props} />,
+									strong: ({ ...props }) => <strong className="font-semibold" {...props} />,
+									em: ({ ...props }) => <em className="italic" {...props} />,
+									blockquote: ({ ...props }) => (
+										<blockquote className="border-l-4 border-primary/30 pl-3 italic text-muted-foreground mb-3" {...props} />
+									),
+									hr: ({ ...props }) => <hr className="my-4 border-border" {...props} />,
+									a: ({ ...props }) => (
+										<a className="text-primary underline hover:text-primary/80" target="_blank" rel="noreferrer" {...props} />
+									),
+									h1: ({ ...props }) => <h1 className="text-xl font-bold mb-3" {...props} />,
+									h2: ({ ...props }) => <h2 className="text-lg font-semibold mb-2" {...props} />,
+									h3: ({ ...props }) => <h3 className="text-base font-semibold mb-2" {...props} />,
+								}}
+							>
+								{part}
+							</ReactMarkdown>
+						);
+					}
+					return part;
+				})
+			) : (
+				<ReactMarkdown
+					remarkPlugins={[remarkGfm, remarkBreaks]}
+					components={{
+						p: ({ ...props }) => <p className="mb-3 leading-relaxed" {...props} />,
+						ul: ({ ...props }) => <ul className="list-disc ml-5 mb-3" {...props} />,
+						ol: ({ ...props }) => <ol className="list-decimal ml-5 mb-3" {...props} />,
+						li: ({ ...props }) => <li className="mb-1" {...props} />,
+						strong: ({ ...props }) => <strong className="font-semibold" {...props} />,
+						em: ({ ...props }) => <em className="italic" {...props} />,
+						blockquote: ({ ...props }) => (
+							<blockquote className="border-l-4 border-primary/30 pl-3 italic text-muted-foreground mb-3" {...props} />
+						),
+						hr: ({ ...props }) => <hr className="my-4 border-border" {...props} />,
+						a: ({ ...props }) => (
+							<a className="text-primary underline hover:text-primary/80" target="_blank" rel="noreferrer" {...props} />
+						),
+						h1: ({ ...props }) => <h1 className="text-xl font-bold mb-3" {...props} />,
+						h2: ({ ...props }) => <h2 className="text-lg font-semibold mb-2" {...props} />,
+						h3: ({ ...props }) => <h3 className="text-base font-semibold mb-2" {...props} />,
+					}}
+				>
+					{processedContent}
+				</ReactMarkdown>
+			)}
+		</div>
 	);
 }
 
@@ -170,18 +301,7 @@ function UserBubble({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function ContinueButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
-	return (
-		<button
-			onClick={onClick}
-			disabled={disabled}
-			className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors disabled:opacity-50"
-		>
-			<span>Continuar</span>
-			<ChevronRight className="w-4 h-4" />
-		</button>
-	);
-}
+// Botão Continuar removido - transições agora são feitas via mensagens de texto
 
 // ══════════════════════════════════════════════════════════════
 // Main App
@@ -299,8 +419,19 @@ export default function App() {
 				setChatState(data.state);
 			}
 
-			// Atualizar step_id para o próximo automaticamente em steps de pergunta
-			// Para steps de conteúdo, mantemos o step atual até o usuário clicar em "Continuar"
+			// Detectar se o usuário está pronto para avançar para a próxima etapa
+			// O modelo pergunta "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
+			// E detecta palavras-chave como "sim", "pode prosseguir", "continuar", etc.
+			if (!isInit) {
+				const readyToAdvance = detectReadyToAdvance(message, data.reply);
+				if (readyToAdvance && data.next_step_id && stepId !== data.next_step_id) {
+					setStepId(data.next_step_id);
+					// Enviar mensagem vazia para iniciar o próximo step
+					setTimeout(() => {
+						sendMessage("", true);
+					}, 100);
+				}
+			}
 
 		} catch (e) {
 			console.error("Falha ao gerar resposta:", e);
@@ -313,17 +444,26 @@ export default function App() {
 		}
 	}
 
-	// Avançar para próximo step (para steps de conteúdo)
-	function advanceToNextStep() {
-		const currentIndex = STEPS_ORDER.indexOf(stepId);
-		if (currentIndex < STEPS_ORDER.length - 1) {
-			const nextStep = STEPS_ORDER[currentIndex + 1];
-			setStepId(nextStep);
-			// Enviar mensagem de "continuar" para o próximo step
-			setTimeout(() => {
-				sendMessage("Continuar", true);
-			}, 100);
+	// Detectar se o usuário está pronto para avançar
+	function detectReadyToAdvance(userMessage: string, assistantReply: string): boolean {
+		if (!userMessage) return false;
+		
+		const message = userMessage.toLowerCase().trim();
+		const readyKeywords = [
+			"sim", "pode prosseguir", "continuar", "próxima etapa", "sem dúvidas",
+			"pode seguir", "vamos em frente", "ok", "tudo certo", "pode continuar",
+			"sem dúvida", "pode avançar", "vamos", "próximo", "próxima"
+		];
+		
+		// Verificar se a resposta do assistente contém a pergunta de transição
+		const hasTransitionQuestion = assistantReply.includes("Você tem alguma dúvida sobre esta etapa ou podemos prosseguir");
+		
+		// Se tem a pergunta de transição e o usuário respondeu com palavras-chave de prontidão
+		if (hasTransitionQuestion) {
+			return readyKeywords.some(keyword => message.includes(keyword));
 		}
+		
+		return false;
 	}
 
 	// Submit handler
@@ -333,21 +473,9 @@ export default function App() {
 		if (!value || pending) return;
 		if (inputRef.current) inputRef.current.value = "";
 		
-		// Para steps de conteúdo onde o usuário respondeu, avançar para o próximo
-		sendMessage(value).then(() => {
-			// Após responder, se não for step de conteúdo puro, avançar
-			if (!CONTENT_ONLY_STEPS.includes(stepId)) {
-				const currentIndex = STEPS_ORDER.indexOf(stepId);
-				if (currentIndex < STEPS_ORDER.length - 1) {
-					const nextStep = STEPS_ORDER[currentIndex + 1];
-					setStepId(nextStep);
-				}
-			}
-		});
+		sendMessage(value);
 	}
 
-	// Verificar se é step de conteúdo (mostrar botão Continuar)
-	const isContentStep = CONTENT_ONLY_STEPS.includes(stepId);
 	const isLastStep = stepId === STEPS_ORDER[STEPS_ORDER.length - 1];
 
 	return (
@@ -373,29 +501,7 @@ export default function App() {
 								<UserBubble key={idx}>{m.content}</UserBubble>
 							) : (
 								<AssistantBubble key={idx}>
-									<ReactMarkdown
-										remarkPlugins={[remarkGfm, remarkBreaks]}
-										components={{
-											p: ({ ...props }) => <p className="mb-3 leading-relaxed" {...props} />,
-											ul: ({ ...props }) => <ul className="list-disc ml-5 mb-3" {...props} />,
-											ol: ({ ...props }) => <ol className="list-decimal ml-5 mb-3" {...props} />,
-											li: ({ ...props }) => <li className="mb-1" {...props} />,
-											strong: ({ ...props }) => <strong className="font-semibold" {...props} />,
-											em: ({ ...props }) => <em className="italic" {...props} />,
-											blockquote: ({ ...props }) => (
-												<blockquote className="border-l-4 border-primary/30 pl-3 italic text-muted-foreground mb-3" {...props} />
-											),
-											hr: ({ ...props }) => <hr className="my-4 border-border" {...props} />,
-											a: ({ ...props }) => (
-												<a className="text-primary underline hover:text-primary/80" target="_blank" rel="noreferrer" {...props} />
-											),
-											h1: ({ ...props }) => <h1 className="text-xl font-bold mb-3" {...props} />,
-											h2: ({ ...props }) => <h2 className="text-lg font-semibold mb-2" {...props} />,
-											h3: ({ ...props }) => <h3 className="text-base font-semibold mb-2" {...props} />,
-										}}
-									>
-										{m.content}
-									</ReactMarkdown>
+									<MarkdownWithVideos content={m.content} />
 								</AssistantBubble>
 							)
 						)}
@@ -411,19 +517,12 @@ export default function App() {
 
 					{/* Input Area */}
 					<div className="border-t p-4 bg-card rounded-b-2xl">
-						{/* Botão Continuar para steps de conteúdo */}
-						{isContentStep && !pending && messages.length > 0 && !isLastStep && (
-							<div className="flex justify-center mb-3">
-								<ContinueButton onClick={advanceToNextStep} disabled={pending} />
-							</div>
-						)}
-
 						{/* Form de input */}
 						<form onSubmit={handleSubmit} className="flex items-center gap-3">
 							<input
 								ref={inputRef}
 								type="text"
-								placeholder={isContentStep ? "Ou digite uma mensagem..." : "Digite sua resposta..."}
+								placeholder="Digite sua mensagem..."
 								className="flex-1 h-11 rounded-full border px-4 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring bg-background"
 								disabled={pending}
 							/>

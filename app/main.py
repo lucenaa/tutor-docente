@@ -77,6 +77,8 @@ class ChatMessage(BaseModel):
 
 class ChatState(BaseModel):
     caminho_escolhido: Optional[Literal["A", "B"]] = None
+    completed_steps: List[str] = []
+    lesson_completed: bool = False  # Flag para indicar se a aula foi finalizada
 
 
 class ChatPayload(BaseModel):
@@ -138,6 +140,51 @@ def detect_path_choice(message: str) -> Optional[Literal["A", "B"]]:
     return None
 
 
+def is_step_completed(step_id: str, state: ChatState) -> bool:
+    """
+    Verifica se um step já foi completado.
+    """
+    return step_id in (state.completed_steps or [])
+
+
+def ensure_sequential_progress(current_step_id: str, state: ChatState) -> bool:
+    """
+    Garante que o progresso seja sequencial.
+    Retorna True se o step atual é válido para ser executado agora.
+    """
+    if not state.completed_steps:
+        # Primeiro step sempre pode ser executado
+        return current_step_id == TRILHO01_STEPS_ORDER[0]
+    
+    # Encontrar o último step completado
+    last_completed_index = -1
+    for step in state.completed_steps:
+        try:
+            idx = TRILHO01_STEPS_ORDER.index(step)
+            if idx > last_completed_index:
+                last_completed_index = idx
+        except ValueError:
+            continue
+    
+    # O próximo step válido seria o que vem após o último completado
+    try:
+        current_index = TRILHO01_STEPS_ORDER.index(current_step_id)
+        # Permite o step atual se for o próximo na sequência ou se já foi completado
+        return current_index <= last_completed_index + 1
+    except ValueError:
+        return False
+
+
+def mark_step_completed(step_id: str, state: ChatState) -> None:
+    """
+    Marca um step como completado.
+    """
+    if state.completed_steps is None:
+        state.completed_steps = []
+    if step_id not in state.completed_steps:
+        state.completed_steps.append(step_id)
+
+
 # ══════════════════════════════════════════════════════════════
 # Endpoints
 # ══════════════════════════════════════════════════════════════
@@ -183,6 +230,15 @@ async def chat_api(payload: ChatPayload):
 
     # Gerenciar state
     state = payload.state or ChatState()
+    if state.completed_steps is None:
+        state.completed_steps = []
+
+    # Garantir progresso sequencial
+    if not ensure_sequential_progress(payload.step_id, state):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Progresso fora de ordem. Step atual: {payload.step_id}. Steps completados: {state.completed_steps}",
+        )
 
     # Detectar escolha de caminho se estiver no step de escolha
     if payload.step_id == "t01_s16_escolha_caminho" and payload.messages:
@@ -193,6 +249,22 @@ async def chat_api(payload: ChatPayload):
             detected_choice = detect_path_choice(last_user_msg)
             if detected_choice:
                 state.caminho_escolhido = detected_choice
+
+    # Verificar se o step já foi completado
+    step_already_completed = is_step_completed(payload.step_id, state)
+    
+    # Se o step já foi completado e não há mensagens novas, apenas confirmar
+    if step_already_completed and not payload.messages:
+        # Step já foi apresentado, apenas retornar confirmação
+        next_step = get_next_step(payload.step_id)
+        return JSONResponse(
+            {
+                "reply": "Você já completou esta etapa. Vamos continuar para a próxima.",
+                "step_id": payload.step_id,
+                "next_step_id": next_step,
+                "state": state.model_dump() if state else None,
+            }
+        )
 
     try:
         # Configurar Gemini
@@ -210,10 +282,12 @@ async def chat_api(payload: ChatPayload):
         # Mapear histórico para o formato esperado (roles: user/model)
         contents = []
         for msg in payload.messages:
-            role = "user" if msg.role == "user" else "model"
-            contents.append({"role": role, "parts": [msg.content]})
+            # Ignorar mensagens vazias
+            if msg.content and msg.content.strip():
+                role = "user" if msg.role == "user" else "model"
+                contents.append({"role": role, "parts": [msg.content]})
 
-        # Se não houver mensagens, iniciamos com um "Iniciar" para disparar o step
+        # Se não houver mensagens válidas, iniciamos com um "Iniciar" para disparar o step
         if not contents:
             contents = [{"role": "user", "parts": ["Iniciar"]}]
 
@@ -226,8 +300,19 @@ async def chat_api(payload: ChatPayload):
             except Exception:
                 text = "Não foi possível obter resposta no momento."
 
+        # Marcar step como completado após apresentação bem-sucedida
+        # Só marca se não estava completado antes e se há conteúdo na resposta
+        if not step_already_completed and text:
+            mark_step_completed(payload.step_id, state)
+
         # Calcular próximo step
         next_step = get_next_step(payload.step_id)
+        
+        # Marcar aula como finalizada se chegou na última etapa
+        if payload.step_id == "t01_s20_conclusao_encerramento" and not state.lesson_completed:
+            # Verificar se a resposta contém indicação de finalização
+            if "trilha está finalizada" in text.lower() or "parabéns por concluir" in text.lower():
+                state.lesson_completed = True
 
         return JSONResponse(
             {

@@ -151,17 +151,31 @@ def get_step_context(step_id: str, state: Optional[dict] = None) -> str:
     """
     state = state or {}
     caminho = state.get("caminho_escolhido")
+    completed_steps = state.get("completed_steps", [])
+    
+    # Verificar se o step já foi completado
+    step_already_completed = step_id in completed_steps
+    
+    # Instrução base para evitar repetição
+    repetition_warning = ""
+    if step_already_completed:
+        repetition_warning = """
+⚠️ ATENÇÃO: Este step já foi apresentado anteriormente. 
+- NÃO apresente o conteúdo novamente.
+- Se o docente pedir para continuar, apenas confirme e avance para o próximo step.
+- Se o docente fizer uma pergunta ou comentário, responda de forma breve e contextualizada.
+"""
 
     contexts = {
         "t01_s1_intro": f"""
 ═══════════════════════════════════════════════════════════════
 STEP ATUAL: Introdução e Contextualização
 ═══════════════════════════════════════════════════════════════
-
+{repetition_warning}
 INSTRUÇÃO:
-1. Apresente os ícones integrados e os pilares correspondentes à trilha.
-2. Leia o texto de apresentação abaixo em tom acolhedor e conversacional.
-3. Após a apresentação, faça a pergunta de engajamento.
+1. {"Se você JÁ apresentou este conteúdo, apenas aguarde confirmação ou responda perguntas do docente." if step_already_completed else "Apresente os ícones integrados e os pilares correspondentes à trilha."}
+2. {"NÃO repita o conteúdo." if step_already_completed else "Leia o texto de apresentação abaixo em tom acolhedor e conversacional."}
+3. {"Aguarde o docente indicar que está pronto para continuar." if step_already_completed else "Após a apresentação, faça a pergunta de engajamento."}
 
 CONTEÚDO A APRESENTAR:
 {load_content("apresentacao.md")}
@@ -175,33 +189,31 @@ Aguarde a resposta do docente antes de prosseguir.
 ═══════════════════════════════════════════════════════════════
 STEP ATUAL: Vídeo 01 — Abertura
 ═══════════════════════════════════════════════════════════════
-
+{repetition_warning}
 INSTRUÇÃO:
-1. Apresente o vídeo de abertura da trilha.
-2. Indique que é momento de assistir ao vídeo.
-3. NÃO faça pergunta neste step — apenas apresente o conteúdo.
+1. {"Se você JÁ apresentou este vídeo, apenas aguarde confirmação do docente." if step_already_completed else "Mencione que há um vídeo de abertura para assistir."}
+2. {"NÃO repita o conteúdo do vídeo." if step_already_completed else "Insira um iframe embeddado do vídeo usando: <iframe src=\"https://example.com/video01-placeholder\" width=\"560\" height=\"315\" frameborder=\"0\" allowfullscreen></iframe>"}
+3. Diga: "Assista ao vídeo de abertura com atenção. Quando terminar, me avise para continuarmos."
 
-CONTEÚDO:
-{load_content("video01.md")}
+IMPORTANTE: NÃO mostre o roteiro do vídeo. Apenas mencione o vídeo e insira o iframe.
 
-Após apresentar, diga algo como:
-"Assista ao vídeo de abertura com atenção. Quando terminar, podemos continuar."
-
-Aguarde confirmação do docente para prosseguir ao próximo step.
+Após o docente indicar que assistiu, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s3_texto_abertura": f"""
 ═══════════════════════════════════════════════════════════════
 STEP ATUAL: Texto de Abertura
 ═══════════════════════════════════════════════════════════════
-
+{repetition_warning}
 INSTRUÇÃO:
-1. Apresente o texto de abertura da dimensão.
-2. NÃO faça pergunta neste step — a pergunta será no próximo step.
+1. {"Se você JÁ apresentou este texto, apenas aguarde confirmação. NÃO repita." if step_already_completed else "Apresente o texto de abertura da dimensão."}
+2. Após apresentar o texto, indique que na sequência virá uma pergunta de reflexão.
 
 CONTEÚDO A APRESENTAR:
 {load_content("texto_abertura.md")}
 
-Após apresentar o texto, indique que na sequência virá uma pergunta de reflexão.
+Após apresentar, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s4_pergunta_abertura": """
 ═══════════════════════════════════════════════════════════════
@@ -215,15 +227,16 @@ Faça a seguinte pergunta de reflexão e aguarde a resposta:
 
 Após a resposta, aplique o fluxo de feedback obrigatório (acolhimento → ponto forte → sugestão → conexões → síntese).
 
-Depois do feedback, informe que na próxima etapa serão apresentadas as competências da trilha.
+Depois do feedback, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
-        "t01_s5_competencias": """
+        "t01_s5_competencias": f"""
 ═══════════════════════════════════════════════════════════════
 STEP ATUAL: Competências da Trilha
 ═══════════════════════════════════════════════════════════════
-
+{repetition_warning}
 INSTRUÇÃO:
-Apresente a lista de competências da trilha:
+{"Se você JÁ apresentou as competências, NÃO as apresente novamente. Apenas aguarde confirmação ou responda perguntas do docente." if step_already_completed else "Apresente a lista de competências da trilha:"}
 
 **Competências da Dimensão 1 — Desenvolvimento Integral**
 
@@ -240,21 +253,23 @@ Apresente a lista de competências da trilha:
 Após apresentar, faça uma breve síntese:
 "Neste trilho, sua prática docente será ampliada para contemplar as dimensões Corpo, Mente e Espírito do desenvolvimento humano. Você será convidado a fundamentar suas escolhas pedagógicas em evidências científicas e princípios da neurociência."
 
-NÃO faça pergunta neste step. Indique que o próximo passo é o texto de articulação.
+Depois, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s6_texto_articulacao": f"""
 ═══════════════════════════════════════════════════════════════
 STEP ATUAL: Texto de Articulação
 ═══════════════════════════════════════════════════════════════
-
+{repetition_warning}
 INSTRUÇÃO:
-1. Apresente o texto de articulação.
-2. NÃO faça pergunta neste step — as perguntas reflexivas virão nos próximos steps.
+1. {"Se você JÁ apresentou este texto, apenas aguarde confirmação. NÃO repita." if step_already_completed else "Apresente o texto de articulação."}
+2. Após apresentar, informe que agora virão 5 perguntas reflexivas, uma de cada vez.
 
 CONTEÚDO A APRESENTAR:
 {load_content("texto_articulacao.md")}
 
-Após apresentar, informe que agora virão 5 perguntas reflexivas, uma de cada vez.
+Após apresentar, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s7_q1": """
 ═══════════════════════════════════════════════════════════════
@@ -272,6 +287,9 @@ CRITÉRIOS DE AVALIAÇÃO (uso interno — NÃO mencionar):
 - Apoiar: Não apresenta critérios de observação.
 
 Aplique o fluxo de feedback após a resposta.
+
+Depois do feedback, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s8_q2": """
 ═══════════════════════════════════════════════════════════════
@@ -289,6 +307,9 @@ CRITÉRIOS DE AVALIAÇÃO (uso interno — NÃO mencionar):
 - Apoiar: Não apresenta estratégias intencionais.
 
 Aplique o fluxo de feedback após a resposta.
+
+Depois do feedback, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s9_q3": """
 ═══════════════════════════════════════════════════════════════
@@ -306,6 +327,9 @@ CRITÉRIOS DE AVALIAÇÃO (uso interno — NÃO mencionar):
 - Apoiar: Não considera empatia/autorregulação como parte da prática.
 
 Aplique o fluxo de feedback após a resposta.
+
+Depois do feedback, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s10_q4": """
 ═══════════════════════════════════════════════════════════════
@@ -323,6 +347,9 @@ CRITÉRIOS DE AVALIAÇÃO (uso interno — NÃO mencionar):
 - Apoiar: Trata currículo, atividades e avaliação de forma desconectada.
 
 Aplique o fluxo de feedback após a resposta.
+
+Depois do feedback, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s11_q5": """
 ═══════════════════════════════════════════════════════════════
@@ -340,39 +367,40 @@ CRITÉRIOS DE AVALIAÇÃO (uso interno — NÃO mencionar):
 - Apoiar: Não menciona integração de valores.
 
 Aplique o fluxo de feedback após a resposta.
-Após o feedback, informe que agora será apresentado um vídeo com uma situação-problema.
+
+Depois do feedback, informe que agora será apresentado um vídeo com uma situação-problema e pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s12_video02": f"""
 ═══════════════════════════════════════════════════════════════
 STEP ATUAL: Vídeo 02 — Situação-Problema
 ═══════════════════════════════════════════════════════════════
-
+{repetition_warning}
 INSTRUÇÃO:
-1. Apresente o vídeo de situação-problema.
-2. Contextualize: este vídeo mostra um dilema comum em sala de aula.
-3. NÃO faça pergunta neste step.
+1. {"Se você JÁ apresentou este vídeo, apenas aguarde confirmação. NÃO repita o conteúdo." if step_already_completed else "Mencione que há um vídeo de situação-problema para assistir."}
+2. {"NÃO repita a contextualização." if step_already_completed else "Contextualize: este vídeo mostra um dilema comum em sala de aula."}
+3. {"NÃO repita o iframe." if step_already_completed else "Insira um iframe embeddado do vídeo usando: <iframe src=\"https://example.com/video02-placeholder\" width=\"560\" height=\"315\" frameborder=\"0\" allowfullscreen></iframe>"}
+4. Diga: "Assista ao vídeo com atenção, relacionando os dilemas apresentados às suas próprias experiências docentes. Quando terminar, me avise para continuarmos."
 
-CONTEÚDO:
-{load_content("video02.md")}
+IMPORTANTE: NÃO mostre o roteiro do vídeo. Apenas mencione o vídeo e insira o iframe.
 
-Após apresentar, diga:
-"Assista ao vídeo com atenção, relacionando os dilemas apresentados às suas próprias experiências docentes. Quando terminar, continuaremos a reflexão."
-
-Aguarde confirmação do docente.
+Após o docente indicar que assistiu, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s13_texto_complementar": f"""
 ═══════════════════════════════════════════════════════════════
 STEP ATUAL: Texto Complementar
 ═══════════════════════════════════════════════════════════════
-
+{repetition_warning}
 INSTRUÇÃO:
-1. Apresente o texto complementar.
-2. NÃO faça pergunta neste step — a pergunta será no próximo step.
+1. {"Se você JÁ apresentou este texto, apenas aguarde confirmação. NÃO repita." if step_already_completed else "Apresente o texto complementar."}
+2. Após apresentar, indique que virão perguntas de reflexão sobre o vídeo.
 
 CONTEÚDO A APRESENTAR:
 {load_content("texto_complementar.md")}
 
-Após apresentar, indique que virão perguntas de reflexão sobre o vídeo.
+Após apresentar, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s14_perguntas_video02": """
 ═══════════════════════════════════════════════════════════════
@@ -392,7 +420,8 @@ Faça as seguintes perguntas reflexivas, UMA de cada vez. Após cada resposta, a
 
 IMPORTANTE: Faça UMA pergunta por vez. Aguarde a resposta. Aplique feedback. Só então faça a próxima.
 
-Após responder todas, indique que virá uma pausa intencional para reflexão.
+Após responder todas as 4 perguntas e dar feedbacks, indique que virá uma pausa intencional para reflexão e pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s15_pausa_intencional": """
 ═══════════════════════════════════════════════════════════════
@@ -414,7 +443,8 @@ Projete como você enfrentaria esse desafio em sua própria sala de aula, de mod
 
 Respire fundo. Quando estiver pronto(a), me avise para continuarmos."
 
-Aguarde o docente indicar que está pronto para prosseguir.
+Após o docente indicar que está pronto, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s16_escolha_caminho": """
 ═══════════════════════════════════════════════════════════════
@@ -442,6 +472,9 @@ Após a escolha, faça a pergunta de reflexão:
 "Quais seriam os benefícios e os riscos pedagógicos de seguir esse caminho?"
 
 Aplique feedback à reflexão do docente.
+
+Depois do feedback, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s17_video03_escolhido": _get_video03_context(caminho, is_chosen=True),
         "t01_s18_video03_outro": _get_video03_context(caminho, is_chosen=False),
@@ -471,6 +504,9 @@ Agora reflita:
 Faça UMA pergunta por vez. Aplique feedback após cada resposta.
 
 IMPORTANTE: Valorize ambos os caminhos. Não existe resposta certa ou errada. Destaque que o valor está na intencionalidade e reflexão contínua.
+
+Após todas as reflexões e feedbacks, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """,
         "t01_s20_conclusao_encerramento": f"""
 ═══════════════════════════════════════════════════════════════
@@ -490,9 +526,11 @@ PERGUNTA FINAL:
 Após a resposta:
 1. Aplique o fluxo de feedback completo
 2. Parabenize o docente pela conclusão do Trilho 01
-3. Encerre de forma acolhedora e motivadora
+3. Informe que a trilha foi finalizada
+4. Deixe claro que o docente pode continuar tirando dúvidas sobre qualquer etapa, mesmo após a finalização
+5. Use uma mensagem como: "Parabéns por concluir o Trilho 01! A trilha está finalizada, mas você pode continuar tirando dúvidas sobre qualquer etapa sempre que precisar."
 
-Este é o último step. Após o feedback final, encerre a formação.
+Este é o último step. Após o feedback final, a trilha está finalizada, mas o chat permanece ativo para dúvidas.
 """,
     }
 
@@ -543,10 +581,14 @@ STEP ATUAL: Vídeo 03 — Caminho {video_name}
 INSTRUÇÃO:
 {intro}
 
-CONTEÚDO:
-{content}
+Mencione que há um vídeo para assistir e insira um iframe embeddado usando:
+<iframe src="https://example.com/video03-{'inclusao-solidaria' if 'Inclusão' in video_name else 'protagonismo-ativo'}-placeholder" width="560" height="315" frameborder="0" allowfullscreen></iframe>
 
-Após apresentar, aguarde o docente indicar que assistiu ao vídeo.
-NÃO faça pergunta neste step — a reflexão será no próximo.
+Diga: "Assista ao vídeo com atenção. Quando terminar, me avise para continuarmos."
+
+IMPORTANTE: NÃO mostre o roteiro do vídeo. Apenas mencione o vídeo e insira o iframe.
+
+Após o docente indicar que assistiu, pergunte:
+👉 "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
 """
 
