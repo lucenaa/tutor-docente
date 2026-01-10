@@ -192,7 +192,7 @@ STEP ATUAL: Vídeo 01 — Abertura
 {repetition_warning}
 INSTRUÇÃO:
 1. {"Se você JÁ apresentou este vídeo, apenas aguarde confirmação do docente." if step_already_completed else "Mencione que há um vídeo de abertura para assistir."}
-2. {"NÃO repita o conteúdo do vídeo." if step_already_completed else "Insira um iframe embeddado do vídeo usando: <iframe src=\"https://example.com/video01-placeholder\" width=\"560\" height=\"315\" frameborder=\"0\" allowfullscreen></iframe>"}
+2. {"NÃO repita o conteúdo do vídeo." if step_already_completed else "Insira um iframe embeddado do vídeo usando: <iframe src='https://example.com/video01-placeholder' width='560' height='315' frameborder='0' allowfullscreen></iframe>"}
 3. Diga: "Assista ao vídeo de abertura com atenção. Quando terminar, me avise para continuarmos."
 
 IMPORTANTE: NÃO mostre o roteiro do vídeo. Apenas mencione o vídeo e insira o iframe.
@@ -379,7 +379,7 @@ STEP ATUAL: Vídeo 02 — Situação-Problema
 INSTRUÇÃO:
 1. {"Se você JÁ apresentou este vídeo, apenas aguarde confirmação. NÃO repita o conteúdo." if step_already_completed else "Mencione que há um vídeo de situação-problema para assistir."}
 2. {"NÃO repita a contextualização." if step_already_completed else "Contextualize: este vídeo mostra um dilema comum em sala de aula."}
-3. {"NÃO repita o iframe." if step_already_completed else "Insira um iframe embeddado do vídeo usando: <iframe src=\"https://example.com/video02-placeholder\" width=\"560\" height=\"315\" frameborder=\"0\" allowfullscreen></iframe>"}
+3. {"NÃO repita o iframe." if step_already_completed else "Insira um iframe embeddado do vídeo usando: <iframe src='https://example.com/video02-placeholder' width='560' height='315' frameborder='0' allowfullscreen></iframe>"}
 4. Diga: "Assista ao vídeo com atenção, relacionando os dilemas apresentados às suas próprias experiências docentes. Quando terminar, me avise para continuarmos."
 
 IMPORTANTE: NÃO mostre o roteiro do vídeo. Apenas mencione o vídeo e insira o iframe.
