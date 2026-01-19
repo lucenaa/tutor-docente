@@ -1,0 +1,346 @@
+# ═══════════════════════════════════════════════════════════════
+# Definição do Trilho 01 - Desenvolvimento Integral
+# ═══════════════════════════════════════════════════════════════
+# Este arquivo define a estrutura completa do Trilho 01 para validação
+# do script generate_trilho.py
+
+trilho_id: "trilho01"
+nome: "Desenvolvimento Integral | Situação-Problema"
+objetivo: |
+  Compreender os fundamentos da proposta Verbum (Corpo são, Mente sã e Espírito pleno), articulando:
+  • Desenvolvimento integral
+  • Práticas baseadas em evidências
+  • Coerência pedagógica
+  • Valores cristãos
+
+icones:
+  - "🟡 Eu compreendo!"
+  - "🟡 Eu proponho!"
+  - "🟡 Eu reflito!"
+
+pilares:
+  - nome: "Mente sã"
+    emoji: "🌱"
+    descricao: "Promover autorregulação emocional, atenção plena e clareza mental como práticas pedagógicas fundamentais para ensinar com presença e escuta."
+  - nome: "Espírito pleno"
+    emoji: "☀️"
+    descricao: "Reforçar a dimensão vocacional, ética e espiritual do docente, resgatando propósito, missão e valores como âncoras da ação pedagógica."
+
+competencias:
+  - id: "1.1"
+    texto: "Conceber estratégias que favoreçam o desenvolvimento integral do estudante, contemplando de forma equilibrada os aspectos cognitivo, socioemocional, psicomotor, físico e espiritual, com foco na formação de valores que promovam corpo são, mente sã e espírito pleno."
+  - id: "1.2"
+    texto: "Planejar e avaliar criticamente práticas pedagógicas baseadas em evidências e princípios da neurociência, como atenção, engajamento ativo, feedback (devolutiva ao estudante) e consolidação da aprendizagem."
+  - id: "1.3"
+    texto: "Orquestrar a coerência pedagógica sistêmica, alinhando objetivos, avaliações, recursos e estratégias de ensino."
+  - id: "1.4"
+    texto: "Integrar e incorporar criativamente os valores católicos como fundamento ético e espiritual da prática pedagógica, cultivando liberdade, excelência, transparência e transcendência."
+
+materiais_proibidos:
+  - "A Coragem de Educar"
+  - "Teoria do Iceberg"
+
+# ═══════════════════════════════════════════════════════════════
+# Definição dos 20 Steps
+# ═══════════════════════════════════════════════════════════════
+
+steps:
+  # ─────────────────────────────────────────────────────────────
+  # Step 1: Introdução
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s1_intro"
+    tipo: "content"
+    label: "Introdução"
+    content_file: "apresentacao.md"
+    has_question: true
+    question: "Antes de começarmos, me conte: você leciona para qual etapa? Anos Iniciais ou Educação Infantil? Isso me ajudará a contextualizar melhor nossas reflexões."
+    content_inline: |
+      # Apresentação da Trilha
+
+      **Ícones Integrados**
+      - 🟡 Eu compreendo!
+      - 🟡 Eu proponho!
+      - 🟡 Eu reflito!
+
+      **Pilares Integrados**
+      - 🌱 **Mente sã**: Promover autorregulação emocional, atenção plena e clareza mental como práticas pedagógicas fundamentais para ensinar com presença e escuta.
+      - ☀️ **Espírito Pleno**: Reforçar a dimensão vocacional, ética e espiritual do docente, resgatando propósito, missão e valores como âncoras da ação pedagógica.
+
+      ---
+
+      Olá! O time Verbum deseja boas-vindas à Trilha 1: Práticas para o Desenvolvimento Integral e convida você a aprender a de fato olhar para cada estudante em sua totalidade.
+
+      Nesse sentido, ao longo da trilha, propomos reflexões sustentadas por literatura científica e experiências empíricas para que você possa refletir sobre a prática docente, concentrando um arcabouço de novas ideias para a atuação em sala de aula.
+
+      Há muito discurso sobre a necessidade da formação docente, mas a orientação para essa pedagogia quase sempre não é observada. Diante o entendimento da formação humana holística, nas dimensões Corpo são, Mente sã e Espírito pleno, a Verbum acredita e sustenta que a prática docente deve promover a integração entre razão, emoção, corpo e espiritualidade, reconhecendo que a aprendizagem só é eficiente quando todos esses pilares estão em equilíbrio.
+
+      Por isso, o objetivo de nosso instrumento da formação docente é articular alguns dos domínios humanos — cognitivo, socioemocional, psicomotor, físico e espiritual — com os diferentes campos do conhecimento, promovendo uma educação verdadeiramente plena para todos os estudantes.
+
+      Ao longo deste trilho, você terá acesso a materiais de apoio, atividades e situações-problema que irão permitir a transformação das aulas em experiências de aprendizagem mais completas e capazes de favorecer o foco, o equilíbrio emocional e o engajamento dos estudantes.
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 2: Vídeo 01
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s2_video01"
+    tipo: "video"
+    label: "Vídeo 01"
+    content_file: "video01.md"
+    has_question: false
+    video_url: "https://example.com/video01-placeholder"
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 3: Texto de Abertura
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s3_texto_abertura"
+    tipo: "content"
+    label: "Texto de Abertura"
+    content_file: "texto_abertura.md"
+    has_question: false
+    content_inline: |
+      # Texto de Abertura
+
+      Todo docente certamente já vivenciou momentos desafiadores em sala de aula: perda de foco, envolver os estudantes e garantir que cada um avance, com equidade, em seu processo de aprendizagem. Mas, o aprendizado é permeado por diferentes ritmos, emoções e necessidades dos estudantes que se encontram em cada turma, com seu dinamismo particular.
+
+      Sabendo disso, como a prática docente pode transformar essas situações em oportunidades para que os estudantes aprendam e cresçam coletivamente?
+
+      Este trilho incita a reflexão sobre a importância de integrar os aspectos cognitivos, socioemocionais, físicos, psicomotores e espirituais no processo educativo. Ao longo do percurso, serão apresentadas estratégias para favorecer a atenção e o foco dos estudantes, estimular o engajamento ativo, fortalecer vínculos afetivos e cultivar valores que sustentam a formação integral.
+
+      Ao longo dessa dimensão, você terá acesso a práticas pedagógicas fundamentadas na ciência da aprendizagem, nos princípios da neurociência e nos valores cristãos para ampliar a capacidade de planejar e conduzir aulas que promovam equilíbrio e harmonia entre corpo são, mente sã e espírito pleno.
+
+      Vamos começar?
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 4: Pergunta de Abertura
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s4_pergunta_abertura"
+    tipo: "question"
+    label: "Reflexão Inicial"
+    has_question: true
+    question: "Na sua prática, quais situações mais desafiadoras você encontra para manter o foco e engajar seus alunos?"
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 5: Competências
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s5_competencias"
+    tipo: "content"
+    label: "Competências"
+    has_question: false
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 6: Texto de Articulação
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s6_texto_articulacao"
+    tipo: "content"
+    label: "Articulação"
+    content_file: "texto_articulacao.md"
+    has_question: false
+    content_inline: |
+      # Texto de Articulação
+
+      As competências desta dimensão estão organizadas em quatro trilhos que se conectam e se fortalecem mutuamente. Docentes são os modelos dos estudantes, em conduta e comportamento. Assim, o desenvolvimento integral do estudante só se concretiza quando o docente fundamenta suas escolhas em evidências, organiza currículo e avaliação de forma coerente e sustenta sua prática em valores éticos e espirituais.
+
+      Na sala de aula, isso se traduz em ações como manter a atenção dos estudantes, lidar com diferentes ritmos de aprendizagem, apoiar a autorregulação emocional, promover vínculos de confiança e equilibrar as exigências acadêmicas com a formação humana.
+
+      O Trilho 1 marca o início do olhar para o estudante em sua totalidade, para que se construa a base necessária para aplicar estratégias fundamentadas na neurociência, práticas de planejamento coerentes e atividades que expressem valores.
+
+      ---
+
+      Registre abaixo suas reflexões a partir das perguntas propostas. Esse espaço é um convite à autoanálise e à conexão entre sua experiência e os conceitos trabalhados nesta dimensão.
+
+      As perguntas que você vai refletir tocam em aspectos centrais da prática docente: manter a atenção dos estudantes, apoiando a autorregulação emocional, promovendo vínculos de confiança e garantindo coerência entre objetivos, atividades e avaliações.
+
+      Esses aspectos podem ser desafios que aparecem de formas variadas em sala de aula e não possuem respostas únicas para solucioná-los. Cada docente encontra caminhos próprios, para esse fim, baseados em suas próprias experiências e personalidades. Uma coisa é certa: parte da solução é encontrada através da escuta ativa, do conhecimento de sua turma sem elaborar estereótipos, e do alinhamento entre teoria e prática pedagógica.
+
+  # ─────────────────────────────────────────────────────────────
+  # Steps 7-11: 5 Perguntas Reflexivas
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s7_q1"
+    tipo: "question"
+    label: "Pergunta 1/5"
+    has_question: true
+    question: "Como você identifica, em sala, os sinais de dispersão, ansiedade ou falta de foco entre seus estudantes?"
+    question_number: 1
+    total_questions: 5
+    rubrica:
+      question: "Como você identifica, em sala, os sinais de dispersão, ansiedade ou falta de foco entre seus estudantes?"
+      excellent: "Reconhece indicadores claros (inquietação, isolamento, perda de atenção) e relaciona à necessidade de adaptação pedagógica e apoio emocional, citando exemplos concretos."
+      good: "Reconhece indicadores claros e relaciona à necessidade de adaptação pedagógica."
+      developing: "Identifica sinais superficiais sem aprofundar em causas ou implicações."
+      needs_support: "Não apresenta critérios de observação ou minimiza os sinais."
+
+  - id: "t01_s8_q2"
+    tipo: "question"
+    label: "Pergunta 2/5"
+    has_question: true
+    question: "Quais estratégias você utiliza para favorecer atenção e concentração durante suas aulas?"
+    question_number: 2
+    total_questions: 5
+    rubrica:
+      question: "Quais estratégias você utiliza para favorecer atenção e concentração durante suas aulas?"
+      excellent: "Usa práticas baseadas em evidências: rotinas claras, técnicas de atenção plena, gamificação equilibrada, alternância de estímulos, com exemplos de aplicação."
+      good: "Usa práticas baseadas em evidências: rotinas claras, técnicas de atenção plena, alternância de estímulos."
+      developing: "Cita estratégias genéricas ou pouco estruturadas."
+      needs_support: "Não apresenta estratégias intencionais ou atribui o foco apenas à responsabilidade do aluno."
+
+  - id: "t01_s9_q3"
+    tipo: "question"
+    label: "Pergunta 3/5"
+    has_question: true
+    question: "De que forma você estimula atitudes de empatia e autorregulação emocional entre os estudantes?"
+    question_number: 3
+    total_questions: 5
+    rubrica:
+      question: "De que forma você estimula atitudes de empatia e autorregulação emocional entre os estudantes?"
+      excellent: "Promove rodas de conversa, trabalhos colaborativos, práticas de escuta, momentos de silêncio/reflexão e modelagem de atitudes, descrevendo situações concretas."
+      good: "Promove rodas de conversa, trabalhos colaborativos, práticas de escuta e momentos de reflexão."
+      developing: "Reconhece a importância, mas cita ações pontuais ou pouco sistemáticas."
+      needs_support: "Não considera a empatia ou a autorregulação como parte de sua prática docente."
+
+  - id: "t01_s10_q4"
+    tipo: "question"
+    label: "Pergunta 4/5"
+    has_question: true
+    question: "Como você garante que os objetivos das atividades e avaliações estejam alinhados para apoiar a aprendizagem?"
+    question_number: 4
+    total_questions: 5
+    rubrica:
+      question: "Como você garante que os objetivos das atividades e avaliações estejam alinhados para apoiar a aprendizagem?"
+      excellent: "Demonstra clareza de objetivos vinculados à BNCC, seleciona atividades coerentes e aplica avaliação formativa/responsiva, com exemplos de alinhamento."
+      good: "Demonstra clareza de objetivos vinculados à BNCC, seleciona atividades coerentes e aplica avaliação formativa."
+      developing: "Apresenta alinhamento parcial, mas sem consistência entre objetivos, atividades e avaliação."
+      needs_support: "Trata currículo, atividades e avaliação de forma desconectada ou sem referência a evidências."
+
+  - id: "t01_s11_q5"
+    tipo: "question"
+    label: "Pergunta 5/5"
+    has_question: true
+    question: "Em que momentos sua prática docente integra valores e princípios que fortalecem vínculos e dão sentido à formação dos estudantes?"
+    question_number: 5
+    total_questions: 5
+    rubrica:
+      question: "Em que momentos sua prática docente integra valores e princípios que fortalecem vínculos e dão sentido à formação dos estudantes?"
+      excellent: "Integra valores cristãos e éticos em situações concretas (dilemas, projetos sociais, celebrações, momentos de espiritualidade), descrevendo como isso impacta os estudantes."
+      good: "Integra valores cristãos e éticos em situações concretas (dilemas, projetos sociais, momentos de espiritualidade)."
+      developing: "Reconhece valores, mas de forma genérica ou pouco aplicada ao cotidiano."
+      needs_support: "Não menciona integração de valores ou reduz a prática apenas a conteúdos acadêmicos."
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 12: Vídeo 02 - Situação-Problema
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s12_video02"
+    tipo: "video"
+    label: "Vídeo Situação-Problema"
+    content_file: "video02.md"
+    has_question: false
+    video_url: "https://example.com/video02-placeholder"
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 13: Texto Complementar
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s13_texto_complementar"
+    tipo: "content"
+    label: "Texto Complementar"
+    content_file: "texto_complementar.md"
+    has_question: false
+    content_inline: |
+      # Texto Complementar
+
+      Você foi apresentado a um dilema comum em sala de aula: estudantes em diferentes níveis de aprendizagem, alguns ansiosos e desmotivados, outros avançados e frustrados com o ritmo da explicação. Diante disso, muitos docentes se perguntam: como manter o foco, engajar a turma e garantir o avanço do conteúdo com participação de todos?
+
+      A prática de conteúdos exige também equilibrar emoções, ritmos e expectativas de aprendizagem, integrando foco, coerência pedagógica e valores que sustentam a formação integral.
+
+      Agora, convidamos você a refletir sobre como enfrentar essas situações na prática docente.
+
+      ---
+
+      No vídeo assistimos uma cena comum: em uma mesma aula, alguns estudantes estavam dispersos, outros acelerados, alguns desmotivados e sem encontrar sentido no que aprendiam. Agora pense na sua realidade.
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 14: Perguntas sobre o Vídeo 02
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s14_perguntas_video02"
+    tipo: "question"
+    label: "Reflexão do Vídeo"
+    has_question: true
+    rubrica:
+      question: "Você já viveu uma situação semelhante à apresentada no vídeo? Descreva como reagiu e quais estratégias utilizou."
+      excellent: "Relata situação concreta, descreve reações de forma consciente e apresenta estratégias pedagógicas intencionais. Faz conexão com o desenvolvimento integral."
+      good: "Relata situação concreta, descreve reações e apresenta estratégias pedagógicas intencionais."
+      developing: "Relata experiência de forma vaga, sem detalhar estratégias ou sem clareza de intencionalidade."
+      needs_support: "Não descreve situação real ou responde genericamente, sem estratégias ou reflexão."
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 15: Pausa Intencional
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s15_pausa_intencional"
+    tipo: "pause"
+    label: "Pausa Intencional"
+    has_question: false
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 16: Escolha de Caminho
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s16_escolha_caminho"
+    tipo: "choice"
+    label: "Escolha de Caminho"
+    has_question: true
+    opcoes:
+      - nome: "Inclusão Solidária"
+        emoji: "🅰️"
+        descricao: "Eu adaptaria a aula para apoiar os estudantes com mais dificuldades, integrando atividades que fortaleçam atenção, autorregulação e empatia."
+      - nome: "Protagonismo Ativo"
+        emoji: "🅱️"
+        descricao: "Eu avançaria no conteúdo para manter engajados os estudantes que já dominam o conteúdo, criando momentos posteriores de apoio personalizado para os demais."
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 17: Vídeo 03 - Caminho Escolhido
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s17_video03_escolhido"
+    tipo: "video"
+    label: "Vídeo do Caminho"
+    has_question: false
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 18: Vídeo 03 - Outro Caminho
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s18_video03_outro"
+    tipo: "video"
+    label: "Vídeo Alternativo"
+    has_question: false
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 19: Reflexão sobre os Caminhos
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s19_reflexao_caminhos"
+    tipo: "question"
+    label: "Reflexão Final"
+    has_question: true
+
+  # ─────────────────────────────────────────────────────────────
+  # Step 20: Conclusão e Encerramento
+  # ─────────────────────────────────────────────────────────────
+  - id: "t01_s20_conclusao_encerramento"
+    tipo: "content"
+    label: "Conclusão"
+    content_file: "conclusao.md"
+    has_question: true
+    question: "Qual foi sua maior reflexão ou aprendizado nesta trilha sobre promover o desenvolvimento integral do estudante?"
+    content_inline: |
+      # Conclusão
+
+      Sua prática docente envolve dilemas e decisões que exigem equilíbrio. Apoiar estudantes com maiores dificuldades ou propor desafios para os que avançam são estratégias válidas quando você, docente, as insere em uma visão que acolhe toda a turma.
+
+      Cada decisão que você toma precisa expressar intencionalidade e estar conectada aos fundamentos da sua prática pedagógica:
+
+      - Promover o desenvolvimento integral dos estudantes
+      - Aplicar práticas baseadas em evidências
+      - Articular currículo, avaliação e recursos com coerência pedagógica
+      - Integrar valores cristãos como solidariedade, justiça e propósito
+
+      Na sala de aula, você, docente, se depara com múltiplos caminhos. Sua força está na capacidade de observar, adaptar e refletir continuamente. Essa postura fortalece o ensino, equilibra apoio e desafio e transforma sua aula em um espaço de aprendizagem significativa e de formação integral.
+
+      ---
+
+      Parabéns por concluir o Trilho 01!
+
+      Você deu um passo importante na sua formação docente. Continue aplicando essas reflexões em sua prática diária e lembre-se: cada pequena ação intencional contribui para o desenvolvimento integral dos seus estudantes.

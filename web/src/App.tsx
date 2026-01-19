@@ -15,16 +15,10 @@ interface Message {
 }
 
 interface ChatState {
+	current_step?: string;
 	caminho_escolhido?: "A" | "B" | null;
 	completed_steps?: string[];
 	lesson_completed?: boolean;
-}
-
-interface ChatResponse {
-	reply: string;
-	step_id: string;
-	next_step_id: string | null;
-	state: ChatState | null;
 }
 
 // Lista de steps (espelho do backend)
@@ -49,20 +43,6 @@ const STEPS_ORDER = [
 	"t01_s18_video03_outro",
 	"t01_s19_reflexao_caminhos",
 	"t01_s20_conclusao_encerramento",
-];
-
-// Steps que são apenas conteúdo (sem pergunta que exige resposta elaborada)
-// Nota: Mantido para referência, mas o botão "Continuar" foi removido
-const CONTENT_ONLY_STEPS = [
-	"t01_s2_video01",
-	"t01_s3_texto_abertura",
-	"t01_s5_competencias",
-	"t01_s6_texto_articulacao",
-	"t01_s12_video02",
-	"t01_s13_texto_complementar",
-	"t01_s15_pausa_intencional",
-	"t01_s17_video03_escolhido",
-	"t01_s18_video03_outro",
 ];
 
 // ══════════════════════════════════════════════════════════════
@@ -103,16 +83,13 @@ function Footer() {
 
 // Componente para renderizar markdown com suporte a iframes de vídeo
 function MarkdownWithVideos({ content }: { content: string }) {
-	// Processar iframes embeddados no conteúdo
 	const processContent = (text: string) => {
-		// Regex para encontrar iframes no formato HTML
 		const iframeRegex = /<iframe([^>]*)><\/iframe>/gi;
 		const parts: (string | JSX.Element)[] = [];
 		let lastIndex = 0;
 		let match;
 
 		while ((match = iframeRegex.exec(text)) !== null) {
-			// Adicionar texto antes do iframe
 			if (match.index > lastIndex) {
 				const beforeText = text.substring(lastIndex, match.index);
 				if (beforeText.trim()) {
@@ -120,7 +97,6 @@ function MarkdownWithVideos({ content }: { content: string }) {
 				}
 			}
 
-			// Extrair atributos do iframe
 			const attrs = match[1];
 			const srcMatch = attrs.match(/src=["']([^"']+)["']/);
 			const widthMatch = attrs.match(/width=["']?(\d+)["']?/);
@@ -130,7 +106,6 @@ function MarkdownWithVideos({ content }: { content: string }) {
 			const width = widthMatch ? widthMatch[1] : "560";
 			const height = heightMatch ? heightMatch[1] : "315";
 
-			// Adicionar iframe como elemento React
 			parts.push(
 				<div key={`iframe-${match.index}`} className="my-4 flex justify-center">
 					<iframe
@@ -148,7 +123,6 @@ function MarkdownWithVideos({ content }: { content: string }) {
 			lastIndex = match.index + match[0].length;
 		}
 
-		// Adicionar texto restante
 		if (lastIndex < text.length) {
 			const remainingText = text.substring(lastIndex);
 			if (remainingText.trim()) {
@@ -156,7 +130,6 @@ function MarkdownWithVideos({ content }: { content: string }) {
 			}
 		}
 
-		// Se não encontrou iframes, retornar conteúdo original
 		if (parts.length === 0) {
 			return text;
 		}
@@ -166,34 +139,32 @@ function MarkdownWithVideos({ content }: { content: string }) {
 
 	const processedContent = processContent(content);
 
+	const mdComponents = {
+		p: ({ ...props }: React.HTMLAttributes<HTMLParagraphElement>) => <p className="mb-3 leading-relaxed" {...props} />,
+		ul: ({ ...props }: React.HTMLAttributes<HTMLUListElement>) => <ul className="list-disc ml-5 mb-3" {...props} />,
+		ol: ({ ...props }: React.HTMLAttributes<HTMLOListElement>) => <ol className="list-decimal ml-5 mb-3" {...props} />,
+		li: ({ ...props }: React.HTMLAttributes<HTMLLIElement>) => <li className="mb-1" {...props} />,
+		strong: ({ ...props }: React.HTMLAttributes<HTMLElement>) => <strong className="font-semibold" {...props} />,
+		em: ({ ...props }: React.HTMLAttributes<HTMLElement>) => <em className="italic" {...props} />,
+		blockquote: ({ ...props }: React.HTMLAttributes<HTMLQuoteElement>) => (
+			<blockquote className="border-l-4 border-primary/30 pl-3 italic text-muted-foreground mb-3" {...props} />
+		),
+		hr: ({ ...props }: React.HTMLAttributes<HTMLHRElement>) => <hr className="my-4 border-border" {...props} />,
+		a: ({ ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+			<a className="text-primary underline hover:text-primary/80" target="_blank" rel="noreferrer" {...props} />
+		),
+		h1: ({ ...props }: React.HTMLAttributes<HTMLHeadingElement>) => <h1 className="text-xl font-bold mb-3" {...props} />,
+		h2: ({ ...props }: React.HTMLAttributes<HTMLHeadingElement>) => <h2 className="text-lg font-semibold mb-2" {...props} />,
+		h3: ({ ...props }: React.HTMLAttributes<HTMLHeadingElement>) => <h3 className="text-base font-semibold mb-2" {...props} />,
+	};
+
 	return (
 		<div>
 			{Array.isArray(processedContent) ? (
 				processedContent.map((part, idx) => {
 					if (typeof part === "string") {
 						return (
-							<ReactMarkdown
-								key={`md-${idx}`}
-								remarkPlugins={[remarkGfm, remarkBreaks]}
-								components={{
-									p: ({ ...props }) => <p className="mb-3 leading-relaxed" {...props} />,
-									ul: ({ ...props }) => <ul className="list-disc ml-5 mb-3" {...props} />,
-									ol: ({ ...props }) => <ol className="list-decimal ml-5 mb-3" {...props} />,
-									li: ({ ...props }) => <li className="mb-1" {...props} />,
-									strong: ({ ...props }) => <strong className="font-semibold" {...props} />,
-									em: ({ ...props }) => <em className="italic" {...props} />,
-									blockquote: ({ ...props }) => (
-										<blockquote className="border-l-4 border-primary/30 pl-3 italic text-muted-foreground mb-3" {...props} />
-									),
-									hr: ({ ...props }) => <hr className="my-4 border-border" {...props} />,
-									a: ({ ...props }) => (
-										<a className="text-primary underline hover:text-primary/80" target="_blank" rel="noreferrer" {...props} />
-									),
-									h1: ({ ...props }) => <h1 className="text-xl font-bold mb-3" {...props} />,
-									h2: ({ ...props }) => <h2 className="text-lg font-semibold mb-2" {...props} />,
-									h3: ({ ...props }) => <h3 className="text-base font-semibold mb-2" {...props} />,
-								}}
-							>
+							<ReactMarkdown key={`md-${idx}`} remarkPlugins={[remarkGfm, remarkBreaks]} components={mdComponents}>
 								{part}
 							</ReactMarkdown>
 						);
@@ -201,27 +172,7 @@ function MarkdownWithVideos({ content }: { content: string }) {
 					return part;
 				})
 			) : (
-				<ReactMarkdown
-					remarkPlugins={[remarkGfm, remarkBreaks]}
-					components={{
-						p: ({ ...props }) => <p className="mb-3 leading-relaxed" {...props} />,
-						ul: ({ ...props }) => <ul className="list-disc ml-5 mb-3" {...props} />,
-						ol: ({ ...props }) => <ol className="list-decimal ml-5 mb-3" {...props} />,
-						li: ({ ...props }) => <li className="mb-1" {...props} />,
-						strong: ({ ...props }) => <strong className="font-semibold" {...props} />,
-						em: ({ ...props }) => <em className="italic" {...props} />,
-						blockquote: ({ ...props }) => (
-							<blockquote className="border-l-4 border-primary/30 pl-3 italic text-muted-foreground mb-3" {...props} />
-						),
-						hr: ({ ...props }) => <hr className="my-4 border-border" {...props} />,
-						a: ({ ...props }) => (
-							<a className="text-primary underline hover:text-primary/80" target="_blank" rel="noreferrer" {...props} />
-						),
-						h1: ({ ...props }) => <h1 className="text-xl font-bold mb-3" {...props} />,
-						h2: ({ ...props }) => <h2 className="text-lg font-semibold mb-2" {...props} />,
-						h3: ({ ...props }) => <h3 className="text-base font-semibold mb-2" {...props} />,
-					}}
-				>
+				<ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={mdComponents}>
 					{processedContent}
 				</ReactMarkdown>
 			)}
@@ -301,44 +252,147 @@ function UserBubble({ children }: { children: React.ReactNode }) {
 	);
 }
 
-// Botão Continuar removido - transições agora são feitas via mensagens de texto
+// ══════════════════════════════════════════════════════════════
+// ADK API Helper
+// ══════════════════════════════════════════════════════════════
+
+const APP_NAME = "tutor_docente";
+const USER_ID = "web_user";
+
+// Gerar session ID único
+function generateSessionId(): string {
+	return `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+}
+
+// Criar sessão no ADK
+async function createSession(sessionId: string): Promise<boolean> {
+	try {
+		const response = await fetch(`/apps/${APP_NAME}/users/${USER_ID}/sessions`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ session_id: sessionId }),
+		});
+		
+		if (response.ok) {
+			console.log("Session created:", sessionId);
+			return true;
+		}
+		
+		const data = await response.json();
+		console.log("Create session response:", data);
+		
+		// Se a sessão já existe, tudo bem
+		if (response.status === 500 && data.detail?.includes("UNIQUE constraint")) {
+			console.log("Session already exists:", sessionId);
+			return true;
+		}
+		
+		return false;
+	} catch (e) {
+		console.error("Error creating session:", e);
+		return false;
+	}
+}
+
+// Enviar mensagem via /run
+async function sendMessageToADK(sessionId: string, message: string): Promise<string> {
+	const response = await fetch(`/run`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			app_name: APP_NAME,
+			user_id: USER_ID,
+			session_id: sessionId,
+			new_message: {
+				role: "user",
+				parts: [{ text: message }]
+			},
+		}),
+	});
+	
+	if (!response.ok) {
+		const errorText = await response.text();
+		console.error("ADK Error Response:", errorText);
+		throw new Error(`Erro HTTP ${response.status}: ${errorText}`);
+	}
+	
+	const data = await response.json();
+	console.log("ADK Response:", data);
+	
+	// Extrair texto da resposta do ADK
+	// O formato é um array de eventos: [{ content: { parts: [{ text: "..." }] } }]
+	let fullResponse = '';
+	
+	if (Array.isArray(data)) {
+		for (const event of data) {
+			if (event.content?.parts) {
+				for (const part of event.content.parts) {
+					if (part.text) {
+						fullResponse += part.text;
+					}
+				}
+			}
+		}
+	} else if (data.events && Array.isArray(data.events)) {
+		for (const event of data.events) {
+			if (event.content?.parts) {
+				for (const part of event.content.parts) {
+					if (part.text) {
+						fullResponse += part.text;
+					}
+				}
+			}
+		}
+	}
+	
+	// Fallback para outros formatos
+	if (!fullResponse) {
+		if (data.response) fullResponse = data.response;
+		else if (data.text) fullResponse = data.text;
+		else if (data.output) fullResponse = data.output;
+	}
+	
+	return fullResponse || "Não foi possível obter resposta.";
+}
 
 // ══════════════════════════════════════════════════════════════
 // Main App
 // ══════════════════════════════════════════════════════════════
 
 export default function App() {
-	// Normalizar URL da API
-	function normalizeApiBase(value?: string): string {
-		if (!value) return "";
-		let v = value.trim();
-		if (v.endsWith("/")) v = v.slice(0, -1);
-		try {
-			const u = new URL(v);
-			const pathname = u.pathname.endsWith("/") ? u.pathname.slice(0, -1) : u.pathname;
-			return `${u.protocol}//${u.host}${pathname}`;
-		} catch {
-			try {
-				const u2 = new URL(`https://${v}`);
-				const pathname = u2.pathname.endsWith("/") ? u2.pathname.slice(0, -1) : u2.pathname;
-				return `${u2.protocol}//${u2.host}${pathname}`;
-			} catch {
-				return "";
-			}
-		}
-	}
-
-	const API_BASE = normalizeApiBase((import.meta as any).env?.VITE_API_URL);
-
 	// State
+	const [sessionId, setSessionId] = React.useState<string>("");
+	const [sessionReady, setSessionReady] = React.useState(false);
 	const [messages, setMessages] = React.useState<Message[]>([]);
 	const [stepId, setStepId] = React.useState<string>(STEPS_ORDER[0]);
 	const [chatState, setChatState] = React.useState<ChatState>({});
 	const [pending, setPending] = React.useState(false);
-	const [initialized, setInitialized] = React.useState(false);
 
 	const inputRef = React.useRef<HTMLInputElement>(null);
 	const scrollRef = React.useRef<HTMLDivElement>(null);
+
+	// Inicializar sessão
+	React.useEffect(() => {
+		async function initSession() {
+			// Gerar novo session ID (sempre criar nova sessão)
+			const newSessionId = generateSessionId();
+			setSessionId(newSessionId);
+			
+			// Criar sessão no ADK
+			const created = await createSession(newSessionId);
+			
+			if (created) {
+				setSessionReady(true);
+				// Enviar mensagem inicial para começar a trilha
+				sendMessageWithSession(newSessionId, "Olá, quero começar a trilha de formação.", true);
+			} else {
+				console.error("Failed to create session");
+			}
+		}
+		
+		initSession();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	// Auto-scroll
 	React.useEffect(() => {
@@ -346,15 +400,6 @@ export default function App() {
 			scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
 		}
 	}, [messages, pending]);
-
-	// Iniciar o trilho automaticamente
-	React.useEffect(() => {
-		if (!initialized) {
-			setInitialized(true);
-			sendMessage("Iniciar", true);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [initialized]);
 
 	// Detectar escolha de caminho A/B
 	function detectPathChoice(message: string): "A" | "B" | null {
@@ -369,73 +414,31 @@ export default function App() {
 		return null;
 	}
 
-	// Enviar mensagem
-	async function sendMessage(message: string, isInit = false) {
-		const newMessages: Message[] = isInit 
-			? [] 
-			: [...messages, { role: "user" as const, content: message }];
-		
+	// Enviar mensagem com session ID específico
+	async function sendMessageWithSession(sid: string, message: string, isInit = false) {
 		if (!isInit) {
-			setMessages(newMessages);
+			setMessages(prev => [...prev, { role: "user" as const, content: message }]);
 		}
 		
 		setPending(true);
 
 		// Detectar escolha de caminho
-		let updatedState = { ...chatState };
 		if (stepId === "t01_s16_escolha_caminho" && !isInit) {
 			const choice = detectPathChoice(message);
 			if (choice) {
-				updatedState.caminho_escolhido = choice;
-				setChatState(updatedState);
+				setChatState(prev => ({ ...prev, caminho_escolhido: choice }));
 			}
 		}
 
 		try {
-			const resp = await fetch(`${API_BASE}/api/chat`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					lesson_id: "1",
-					step_id: stepId,
-					messages: isInit ? [] : newMessages,
-					state: updatedState,
-				}),
-			});
-
-			const data: ChatResponse = await resp.json();
-
-			if (!resp.ok) {
-				console.error("/api/chat error:", { status: resp.status, data });
-				throw new Error((data as any).detail || `Erro HTTP ${resp.status}`);
-			}
-
-			// Atualizar mensagens
-			const assistantMessage: Message = { role: "assistant", content: data.reply };
-			setMessages((prev) => [...prev, assistantMessage]);
-
-			// Atualizar state se retornado
-			if (data.state) {
-				setChatState(data.state);
-			}
-
-			// Detectar se o usuário está pronto para avançar para a próxima etapa
-			// O modelo pergunta "Você tem alguma dúvida sobre esta etapa ou podemos prosseguir para a próxima?"
-			// E detecta palavras-chave como "sim", "pode prosseguir", "continuar", etc.
-			if (!isInit) {
-				const readyToAdvance = detectReadyToAdvance(message, data.reply);
-				if (readyToAdvance && data.next_step_id && stepId !== data.next_step_id) {
-					setStepId(data.next_step_id);
-					// Enviar mensagem vazia para iniciar o próximo step
-					setTimeout(() => {
-						sendMessage("", true);
-					}, 100);
-				}
-			}
+			const responseText = await sendMessageToADK(sid, message);
+			
+			const assistantMessage: Message = { role: "assistant", content: responseText };
+			setMessages(prev => [...prev, assistantMessage]);
 
 		} catch (e) {
 			console.error("Falha ao gerar resposta:", e);
-			setMessages((prev) => [
+			setMessages(prev => [
 				...prev,
 				{ role: "assistant", content: "Desculpe, ocorreu um erro ao gerar a resposta. Tente novamente." },
 			]);
@@ -444,39 +447,29 @@ export default function App() {
 		}
 	}
 
-	// Detectar se o usuário está pronto para avançar
-	function detectReadyToAdvance(userMessage: string, assistantReply: string): boolean {
-		if (!userMessage) return false;
-		
-		const message = userMessage.toLowerCase().trim();
-		const readyKeywords = [
-			"sim", "pode prosseguir", "continuar", "próxima etapa", "sem dúvidas",
-			"pode seguir", "vamos em frente", "ok", "tudo certo", "pode continuar",
-			"sem dúvida", "pode avançar", "vamos", "próximo", "próxima"
-		];
-		
-		// Verificar se a resposta do assistente contém a pergunta de transição
-		const hasTransitionQuestion = assistantReply.includes("Você tem alguma dúvida sobre esta etapa ou podemos prosseguir");
-		
-		// Se tem a pergunta de transição e o usuário respondeu com palavras-chave de prontidão
-		if (hasTransitionQuestion) {
-			return readyKeywords.some(keyword => message.includes(keyword));
+	// Enviar mensagem usando session ID do estado
+	async function sendMessage(message: string) {
+		if (!sessionId || !sessionReady) {
+			console.error("Session not ready");
+			return;
 		}
-		
-		return false;
+		await sendMessageWithSession(sessionId, message, false);
 	}
 
 	// Submit handler
 	function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		const value = (inputRef.current?.value || "").trim();
-		if (!value || pending) return;
+		if (!value || pending || !sessionReady) return;
 		if (inputRef.current) inputRef.current.value = "";
 		
 		sendMessage(value);
 	}
 
-	const isLastStep = stepId === STEPS_ORDER[STEPS_ORDER.length - 1];
+	// Reiniciar sessão
+	function handleResetSession() {
+		window.location.reload();
+	}
 
 	return (
 		<div className="min-h-screen flex flex-col bg-background">
@@ -496,6 +489,14 @@ export default function App() {
 						ref={scrollRef}
 						className="h-[60vh] overflow-y-auto p-4 space-y-4"
 					>
+						{!sessionReady && (
+							<AssistantBubble>
+								<div className="flex items-center gap-2">
+									<Loader2 className="w-4 h-4 animate-spin" />
+									<span className="text-muted-foreground">Conectando ao tutor...</span>
+								</div>
+							</AssistantBubble>
+						)}
 						{messages.map((m, idx) =>
 							m.role === "user" ? (
 								<UserBubble key={idx}>{m.content}</UserBubble>
@@ -517,18 +518,17 @@ export default function App() {
 
 					{/* Input Area */}
 					<div className="border-t p-4 bg-card rounded-b-2xl">
-						{/* Form de input */}
 						<form onSubmit={handleSubmit} className="flex items-center gap-3">
 							<input
 								ref={inputRef}
 								type="text"
-								placeholder="Digite sua mensagem..."
+								placeholder={sessionReady ? "Digite sua mensagem..." : "Aguarde..."}
 								className="flex-1 h-11 rounded-full border px-4 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring bg-background"
-								disabled={pending}
+								disabled={pending || !sessionReady}
 							/>
 							<button
 								type="submit"
-								disabled={pending}
+								disabled={pending || !sessionReady}
 								className="inline-flex items-center justify-center h-11 w-11 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
 							>
 								{pending ? (
@@ -541,12 +541,20 @@ export default function App() {
 					</div>
 				</div>
 
-				{/* State info (debug - remover em produção) */}
-				{chatState.caminho_escolhido && (
-					<div className="mt-4 text-xs text-muted-foreground text-center">
-						Caminho escolhido: {chatState.caminho_escolhido === "A" ? "Inclusão Solidária" : "Protagonismo Ativo"}
-					</div>
-				)}
+				{/* State info & Reset button */}
+				<div className="mt-4 flex items-center justify-between">
+					{chatState.caminho_escolhido && (
+						<div className="text-xs text-muted-foreground">
+							Caminho escolhido: {chatState.caminho_escolhido === "A" ? "Inclusão Solidária" : "Protagonismo Ativo"}
+						</div>
+					)}
+					<button
+						onClick={handleResetSession}
+						className="text-xs text-muted-foreground hover:text-foreground underline ml-auto"
+					>
+						Reiniciar trilha
+					</button>
+				</div>
 			</main>
 
 			<Footer />

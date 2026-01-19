@@ -1,94 +1,153 @@
-## Tutor Docente Verbum — Catálogo e Chat (Aulas 1–4)
+# Tutor Docente Verbum
 
-Aplicação web com backend em FastAPI e frontend em React (Vite + TypeScript + Tailwind v4), que oferece um catálogo de aulas e um chat tutor com prompts específicos para cada trilho (Aulas 1–4). O tutor utiliza o modelo `gemini-2.5-pro` (Google Generative AI).
+Agente de formação docente da Verbum Educação, desenvolvido com Google ADK (Agent Development Kit).
 
-### Arquitetura
-- Backend: FastAPI (`app/main.py`) com endpoint `/api/chat` e prompts por `lesson_id` (1, 2, 3, 4)
-- Frontend: React + Vite em `web/` com Tailwind v4, UI com ícones e renderização de Markdown
-- CORS configurável via variável `FRONTEND_ORIGIN`
+## Arquitetura
 
-### Requisitos
-- Python 3.10+
-- Node.js 18+
-- Uma chave de API do Google Generative AI (`GOOGLE_API_KEY`)
-
-### Configuração do Backend
-1) Criar/usar venv e instalar dependências:
-```powershell
-python -m venv venv
-venv\Scripts\Activate.ps1
-venv\Scripts\python -m pip install -r requirements.txt
 ```
-2) Defina variáveis de ambiente (ou use um arquivo `.env` na raiz):
-```
-GOOGLE_API_KEY=coloque_sua_chave_aqui
-FRONTEND_ORIGIN=http://localhost:5173
-```
-3) Rodar o servidor FastAPI:
-```powershell
-venv\Scripts\python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+tutor-docente/
+├── agent.py                    # Entry point do ADK
+├── agent_factories.py          # Factory para instanciar agentes
+├── pyproject.toml              # Dependências do projeto
+├── core/                       # Código compartilhado
+│   ├── constants.py            # Modelos AI, configurações
+│   ├── exceptions.py           # Exceções customizadas
+│   └── utils/                  # Utilitários
+├── domain/
+│   └── verbum/
+│       └── tutor_docente/      # Agente Tutor Docente
+│           ├── agent.py        # Root agent
+│           ├── constants.py    # Steps, rubricas
+│           ├── types.py        # Schemas Pydantic
+│           ├── callbacks/      # Callbacks de estado
+│           ├── subagents/      # Subagentes especializados
+│           ├── tools/          # Tools do agente
+│           ├── prompts/        # Prompts e instruções
+│           └── content/        # Conteúdos das trilhas
+├── web/                        # Frontend React
+└── scripts/                    # Scripts de deploy
 ```
 
-### Configuração do Frontend
-1) Instalar dependências do app React:
-```powershell
+## Requisitos
+
+- Python 3.11+
+- Node.js 18+ (para o frontend)
+- Chave de API do Google (GOOGLE_API_KEY)
+
+## Instalação
+
+### Backend (ADK)
+
+```bash
+# Instalar uv (gerenciador de pacotes)
+pip install uv
+
+# Instalar dependências
+uv sync
+
+# Ou com pip
+pip install -e .
+```
+
+### Frontend
+
+```bash
 cd web
 npm install
 ```
-2) Executar o Vite:
-```powershell
+
+## Executando Localmente
+
+### ADK Web Interface
+
+```bash
+# Iniciar o agente com interface web do ADK
+uv run adk web domain/verbum --port 8000
+
+# Ou especificando o agente
+ADK_ENTRYPOINT=tutor_docente uv run adk web domain/verbum --port 8000
+```
+
+Acesse: http://localhost:8000
+
+### Frontend React (alternativo)
+
+```bash
+# Terminal 1: Backend
+uv run adk web domain/verbum --port 8000
+
+# Terminal 2: Frontend
+cd web
 npm run dev
 ```
-3) Acesse o frontend em `http://localhost:5173` (o backend fica em `http://localhost:8000`).
 
-4) Para produção via Netlify, defina `VITE_API_URL` nas variáveis do site com a URL pública do backend (ex.: `https://seu-backend.up.railway.app`).
+O frontend estará em http://localhost:5173
 
-### Uso
-- Página inicial: catálogo com as Aulas 1–4. Clique em uma aula para abrir o chat.
-- O chat envia `lesson_id` para o backend que seleciona o prompt correto.
-- Mensagens do tutor suportam Markdown.
+## Variáveis de Ambiente
 
-### Prompts
-- Aula 1 — Situação-problema (Dimensão 1 — Desenvolvimento Integral)
-- Aula 2 — Fundamentação (Fundamentos/BNCC/valores)
-- Aula 3 — Integração e Aplicação (mini-plano integral)
-- Aula 4 — Curadoria Complementar (repertório + aplicação)
+| Variável | Descrição | Obrigatório |
+|----------|-----------|-------------|
+| `GOOGLE_API_KEY` | Chave da API Google Generative AI | Sim |
+| `ADK_ENTRYPOINT` | Agente a carregar (default: tutor_docente) | Não |
 
-### Publicação no GitHub
-Assumindo que você já tem um repositório remoto `https://github.com/lucenaa/tutor-docente-verbum`:
+## Estrutura do Trilho 01
 
-```powershell
-cd C:\Users\GABRIEL-PC\Desktop\projetos\trilhas-docentes
-git init
-git remote add origin https://github.com/lucenaa/tutor-docente-verbum.git
-git add .
-git commit -m "feat: backend FastAPI + frontend React (Aulas 1–4, Gemini)"
-git branch -M main
-git push -u origin main
+O Trilho 01 "Desenvolvimento Integral" possui 20 steps:
+
+1. Introdução e Contextualização
+2. Vídeo de Abertura
+3. Texto de Abertura
+4. Pergunta de Reflexão Inicial
+5. Competências
+6. Texto de Articulação
+7-11. Perguntas Reflexivas (5 perguntas)
+12. Vídeo Situação-Problema
+13. Texto Complementar
+14. Perguntas sobre o Vídeo
+15. Pausa Intencional
+16. Escolha de Caminhos (A ou B)
+17. Vídeo do Caminho Escolhido
+18. Vídeo do Outro Caminho
+19. Reflexão sobre os Caminhos
+20. Conclusão e Encerramento
+
+## Deploy
+
+### Vertex AI (produção)
+
+```bash
+python scripts/deploy_tutor_docente.py
 ```
 
-Se o repositório já possuir histórico, execute antes:
-```powershell
-git pull --rebase origin main
+### Railway + Netlify (alternativo)
+
+Veja o arquivo [DEPLOY.md](DEPLOY.md) para instruções detalhadas.
+
+## Desenvolvimento
+
+### Estrutura de um Subagente
+
+```python
+from google.adk.agents import LlmAgent
+from core.constants import AIModels
+
+subagent = LlmAgent(
+    name="NomeSubagent",
+    model=AIModels.GEMINI_2_5_FLASH,
+    description="Descrição do subagente",
+    instruction="Instruções detalhadas...",
+    output_key="output_key_name",
+)
 ```
 
-### Estrutura de Pastas (principal)
-```
-app/
-  main.py
-web/
-  src/
-  vite.config.ts
-  package.json
-requirements.txt
-README.md
-```
+### Adicionando um Novo Trilho
 
-### Deploy
-- Backend (Railway): use `railway.json` ou `Procfile` (`uvicorn app.main:app --host 0.0.0.0 --port $PORT`) e defina `GOOGLE_API_KEY` e `FRONTEND_ORIGIN`.
-- Frontend (Netlify): Base `web`, Build `npm run build`, Publish `web/dist`, defina `VITE_API_URL` com a URL do backend.
+1. Criar diretório em `domain/verbum/tutor_docente/content/trilhoXX/`
+2. Adicionar arquivos de conteúdo (.md)
+3. Atualizar `constants.py` com steps e rubricas
+4. Criar prompts em `prompts/`
+5. Ajustar o agente para suportar múltiplos trilhos
 
-### Notas
-- Tailwind v4 com `@tailwindcss/postcss`. Se vir erro de PostCSS, rode `npm install` dentro de `web/`.
-- O chat usa `google-generativeai` e requer `GOOGLE_API_KEY` válida.
+## Licença
 
+Propriedade da Verbum Educação.
